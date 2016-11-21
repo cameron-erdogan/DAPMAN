@@ -1,0 +1,19 @@
+Structure of LeapBox
+
+- Box (a box wireframe, corresponds to the bounds of Leap's InteractionBox)
+- Shiny Sphere (represents palm position normalized to bounds of InteractionBox)
+- Sphere shadow (projection of Shiny Sphere onto floor xz plane)
+
+Box can be our main node we keep track of, shiny spehre and shadow can be children 
+
+
+-------------------------
+
+Basic program flow:
+- when you first open program/start running, dapman is just listening for any hand
+- when it detects a hand, check to see if it matches the first hand in the sequence
+- if it does, start the entire serialized hand matching sequence
+- (add visual feedback to this after backend part is done)
+- if the code fails, tell the user and return to listening state
+- if the code succeeds, transition to "unlocked" UI. Here you should be able to reset the passcode
+- also if the code succeeds, send a code to unlock the door (need to research the hardware part of this again)
