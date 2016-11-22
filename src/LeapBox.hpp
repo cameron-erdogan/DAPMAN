@@ -60,15 +60,20 @@ public:
     
 
 private:
+    enum AppState{looking_for_hand, attempting_to_unlock, wrong_code_cooldown, unlocked, set_new_code, cooldown};
+    
     void connectToLeap();
     ofVec3f calculateInteractionBox(Leap::InteractionBox box, float max_side);
     void updateLeapPositions();
     void updateTimerAndSamples();
     void processSamples();
-    void setWrongCodeCooldown(float cooldown_time);
     
+    //state cooldown stuff
+    void setWrongCodeCooldown(float cooldown_time);
+    void setCooldown(float cooldown_time, AppState next_state);
+    void setCooldown(float cooldown_time, AppState next_state, string message);
     //what do I need a state enum for?
-    enum AppState{looking_for_hand, attempting_to_unlock, wrong_code_cooldown, unlocked, set_new_code};
+    
     /**
      - looking_for_hand
      - attempting to unlock
@@ -76,6 +81,8 @@ private:
      - unlocked
      **/
     AppState _state = looking_for_hand;
+    AppState _post_cooldown_state = looking_for_hand;
+    string _cooldown_message;
     
     //this is the saved code that should "unlock" dapman
     std::vector<Leap::Frame> _saved_frames;
@@ -86,7 +93,7 @@ private:
     bool _is_taking_samples = false;
     int _num_samples;
     float _sample_rate;  //in seconds/sample
-    float _cooldown;
+    float _cooldown_time;
     std::vector<Leap::Frame> _samples;
    
    

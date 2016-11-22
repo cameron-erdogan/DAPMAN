@@ -147,6 +147,12 @@ namespace LeapUtil {
             return false;
     }
     
+    bool fileExists(std::string filename){
+        ifstream f(filename.c_str());
+        return f.good();
+    }
+
+    
     //serializeFrames and deserializeFrames have been taken almost verbatim from the Leap docs
     void serializeFrames(std::vector<Frame>& frames, std::string filename){
         

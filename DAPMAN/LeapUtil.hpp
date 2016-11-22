@@ -21,6 +21,7 @@ namespace LeapUtil {
         
     bool heatCheck(std::vector<Frame>& frames, float confidence);
     
+    
     bool compareFrames(std::vector<Frame>& input_frames, std::vector<Frame>& saved_frames);
     
     bool compareFrame(Frame input_frame, Frame saved_frame);
@@ -28,6 +29,8 @@ namespace LeapUtil {
     float distanceBetweenAngles(float a, float b);
     
     bool compareExtendedFingers(const Hand& a, const Hand& b);
+    
+    bool fileExists(std::string filename);
     
     void serializeFrames(std::vector<Frame>& frames, std::string filename);
     

@@ -52,7 +52,12 @@ void LeapBox::setup(){
     
     status_pos = ofVec3f(ofGetWidth() / 2.0 - 100, 20.0, 0);
     
-    _saved_frames = LeapUtil::deserializeFrames("code.data");
+    
+//    if(LeapUtil::fileExists("custom_code.data") == true){
+//        _saved_frames = LeapUtil::deserializeFrames("custom_code.data");
+//    }else{
+        _saved_frames = LeapUtil::deserializeFrames("code.data");
+//    }
     
 //    takeSamples(4, 1.2);
     ofBackgroundGradient(ofColor::white, ofColor::whiteSmoke, OF_GRADIENT_CIRCULAR);
@@ -63,8 +68,9 @@ void LeapBox::setup(){
 void LeapBox::update(){
     updateLeapPositions();
     
-    finished_button.checkHandInBounds(hand_sphere, true);
-    reset_code_button.checkHandInBounds(hand_sphere, true);
+    bool hand_in_finished_button = finished_button.checkHandInBounds(hand_sphere, true);
+    bool hand_in_reset_button = reset_code_button.checkHandInBounds(hand_sphere, true);
+    int extended_fingers = controller.frame().hands().frontmost().fingers().extended().count();
     
     switch(_state){
         case looking_for_hand:
@@ -73,10 +79,11 @@ void LeapBox::update(){
                 
                 //should look for start gesture
                 //for now this is just a closed fist
-                int extended_fingers = controller.frame().hands().frontmost().fingers().extended().count();
-                
-                if(extended_fingers == 0)
+               
+                if(extended_fingers == 0){
+                    _state = attempting_to_unlock;
                     takeSamples(_saved_frames.size(), 1.2);
+                }
 
             }
             break;
@@ -89,7 +96,7 @@ void LeapBox::update(){
         case wrong_code_cooldown:
         {
             std::chrono::duration<double> elapsed = _clock::now() - _start_time;
-            if(elapsed.count() > _cooldown){
+            if(elapsed.count() > _cooldown_time){
                 _state = looking_for_hand;
 //                ofBackground(20);
             }
@@ -99,9 +106,37 @@ void LeapBox::update(){
             
         case unlocked:
             
+            //listen for
+            if(extended_fingers == 0){
+                //check to see if the hand is in a button
+                if(hand_in_reset_button == true){
+//                    setCooldown(2, AppState::set_new_code, "prepare new code");
+                    _state = AppState::set_new_code;
+                    takeSamples(_saved_frames.size(), 1.2);
+                    
+                }else if(hand_in_finished_button == true){
+                    //maybe should have a cool down here too
+                    setCooldown(1, looking_for_hand);
+                }
+            }
+            
             break;
             
         case set_new_code:
+            
+            updateTimerAndSamples();
+            break;
+        
+        case cooldown:
+            
+            std::chrono::duration<double> elapsed = _clock::now() - _start_time;
+            if(elapsed.count() > _cooldown_time){
+                _state = _post_cooldown_state;
+                
+                if(_state == set_new_code || _state == looking_for_hand)
+                    takeSamples(_saved_frames.size(), 1.2);
+                //                ofBackground(20);
+            }
             break;
             
     }
@@ -130,12 +165,16 @@ void LeapBox::draw(){
             ofDrawBitmapString("unlocked!", status_pos);
             ofBackgroundGradient(ofColor::white, ofColor::paleGreen, OF_GRADIENT_CIRCULAR);
             
-            reset_code_button.draw();
-            finished_button.draw();
-
             break;
         
         case set_new_code:
+            ofDrawBitmapString("reading new code", status_pos);
+            ofBackgroundGradient(ofColor::white, ofColor::blanchedAlmond, OF_GRADIENT_CIRCULAR);
+            break;
+        
+        case cooldown:
+            ofDrawBitmapString(_cooldown_message, status_pos);
+            ofBackgroundGradient(ofColor::white, ofColor::whiteSmoke, OF_GRADIENT_CIRCULAR);
             break;
             
     }
@@ -151,7 +190,6 @@ void LeapBox::draw(){
         ofSetColor(255, 0, 0);
         ofNoFill();
         
-        
         hand_shadow.draw();
         timer_circle.draw();
     }
@@ -163,35 +201,63 @@ void LeapBox::draw(){
     //fudge the size a bit so the circle doesn't overlap bounds?
     ofDrawBox(root.getPosition(), box_size.x, box_size.y, box_size.z);
     
+
     
-//    reset_code_button.draw();
-//    finished_button.draw();
+    //draw transparent stuff
+    //according to openframeworks documentation you have to draw all the opaque stuff before you
+    //draw any transparent stuff. Not 100% sure why this is.
+    if(_state == unlocked){
+        reset_code_button.draw();
+        finished_button.draw();
+
+    }
 
 }
 
+//more like "prepare to take samples"
 void LeapBox::takeSamples(int num_samples, float sample_rate){
     
-    if(_state != attempting_to_unlock){
-        _state = attempting_to_unlock;
+//    if(_state != attempting_to_unlock){
+//        _state = attempting_to_unlock;
         _start_time = _clock::now();
         _samples.clear();
         _num_samples = num_samples;
         _sample_rate = sample_rate;
         
-    }
+//    }
 }
 
+//specifically for wrong code cooldown
+//we change the background color specifically for wrong code state
 void LeapBox::setWrongCodeCooldown(float cooldown_time){
+   
+    progress_dots.fillDots(0);
     _state = wrong_code_cooldown;
     _start_time = _clock::now();
-    progress_dots.fillDots(0);
-    _cooldown = cooldown_time;
+    _cooldown_time = cooldown_time;
     
+}
+
+//for generic cooldowns
+void LeapBox::setCooldown(float cooldown_time, AppState next_state){
+    _state = cooldown;
+    _start_time = _clock::now();
+    _cooldown_time = cooldown_time;
+    _post_cooldown_state = next_state;
+    _cooldown_message = "";
+}
+
+void LeapBox::setCooldown(float cooldown_time, AppState next_state, string message){
+    _state = cooldown;
+    _start_time = _clock::now();
+    _cooldown_time = cooldown_time;
+    _post_cooldown_state = next_state;
+    _cooldown_message = message;
 }
 
 void LeapBox::updateTimerAndSamples(){
 
-    if(_state == attempting_to_unlock){
+    if(_state == attempting_to_unlock || _state == set_new_code){
         std::chrono::duration<double> elapsed = _clock::now() - _start_time;
         
         if(elapsed.count() > _sample_rate){
@@ -251,18 +317,31 @@ void LeapBox::processSamples(){
         LeapUtil::printFrameStuff(_samples[i]);
     }
 //    LeapUtil::serializeFrames(_samples, "code.data");
-    
-    _state = unlocked;
-    bool codes_match = LeapUtil::compareFrames(_samples, _saved_frames);
-    if(codes_match == true){
-        _state = unlocked;
+    progress_dots.fillDots(0);
+
+    if(_state == attempting_to_unlock){
+        bool codes_match = LeapUtil::compareFrames(_samples, _saved_frames);
+        if(codes_match == true){
+            _state = unlocked;
+            
+            if(delegate)
+                delegate -> unlock();
+        }else{
+            setWrongCodeCooldown(3);
+        }
+    }else if(_state == set_new_code){
+        bool heat_check = LeapUtil::heatCheck(_samples, 0.7f);
         
-        if(delegate)
-            delegate -> unlock();
-    }else{
-        setWrongCodeCooldown(3);
-        
+        if(heat_check == true){
+            LeapUtil::serializeFrames(_samples, "custom_code.data");
+            _saved_frames = _samples;
+            
+            setCooldown(1.0, unlocked, "new code successfully created");
+        }else{
+            setCooldown(1.5, set_new_code, "uncertain reading, try again");
+        }
     }
+    
     
 //    vector<Frame> saved_frames = LeapUtil::deserializeFrames("code.data");
 //    for(std::size_t i = 0; i != saved_frames.size(); i++) {
