@@ -1,7 +1,8 @@
 # DAPMAN
 Secret Handshake + Leap Motion + Raspberry Pi 
 
-Unlock a safe using a secret handshake. See the video below for more info.
+Unlock a safe using a secret handshake.
+
 Video Feature Walkthough: https://vimeo.com/193295633
 
 
