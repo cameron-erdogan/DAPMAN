@@ -14,8 +14,8 @@ Dapman spawned from wanting to find a non-gaming application for my Leap Motion.
 
 ## How does it work?
 The project has two main parts:
-	- a laptop with a Leap Motion attached 
-	- a modified IKEA cabinet with a Raspberry Pi-controlled electric lock 
+- a laptop with a Leap Motion attached 
+- a modified IKEA cabinet with a Raspberry Pi-controlled electric lock 
 
 The laptop does the processing required by Leap Motion and has a GUI shows you some useful things like your hand’s position and how far through the dap process you are. It also acts as a tcp client and sends a message to the Raspberry Pi when you dap up Dapman correctly. 
 
