@@ -30,17 +30,17 @@ void ofApp::setup(){
 
 void ofApp::unlock(){
     cout << "unlocking" << endl;
-//    tcpClient.setup("192.168.1.138", 12345);
-//    tcpClient.send("unlock");
-//    tcpClient.close();
+    tcpClient.setup("192.168.1.138", 12345);
+    tcpClient.send("unlock");
+    tcpClient.close();
 }
 
 void ofApp::lock(){
     cout << "locking" << endl;
     
-//    tcpClient.setup("192.168.1.138", 12345);
-//    tcpClient.send("lock");
-//    tcpClient.close();
+    tcpClient.setup("192.168.1.138", 12345);
+    tcpClient.send("lock");
+    tcpClient.close();
 
 }
 
@@ -64,10 +64,10 @@ void ofApp::draw(){
     ofEnableLighting();
     pointLight.enable();
     
-    if(tcpClient.isConnected())
-        ofDrawBitmapString("connected", 5, 15);
-    else
-        ofDrawBitmapString("not connected", 5, 15);
+//    if(tcpClient.isConnected())
+//        ofDrawBitmapString("connected", 5, 15);
+//    else
+//        ofDrawBitmapString("not connected", 5, 15);
 }
 
 

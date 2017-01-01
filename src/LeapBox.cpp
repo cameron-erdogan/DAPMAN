@@ -133,6 +133,11 @@ void LeapBox::update(){
             if(elapsed.count() > _cooldown_time){
                 _state = _post_cooldown_state;
                 
+                if(_state == looking_for_hand){
+                    if(delegate)
+                        delegate -> lock();
+                }
+                
                 if(_state == set_new_code || _state == looking_for_hand)
                     takeSamples(_saved_frames.size(), 1.2);
                 //                ofBackground(20);
@@ -148,6 +153,8 @@ void LeapBox::draw(){
         case looking_for_hand:
             ofDrawBitmapString("looking for hand", status_pos);
             ofBackgroundGradient(ofColor::white, ofColor::whiteSmoke, OF_GRADIENT_CIRCULAR);
+
+            
             break;
             
         case attempting_to_unlock:
@@ -327,10 +334,12 @@ void LeapBox::processSamples(){
             if(delegate)
                 delegate -> unlock();
         }else{
+            if(delegate)
+                delegate -> lock();
             setWrongCodeCooldown(3);
         }
     }else if(_state == set_new_code){
-        bool heat_check = LeapUtil::heatCheck(_samples, 0.7f);
+        bool heat_check = LeapUtil::heatCheck(_samples, 0.65f);
         
         if(heat_check == true){
             LeapUtil::serializeFrames(_samples, "custom_code.data");
