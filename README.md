@@ -28,6 +28,13 @@ All of the code on the laptop was written in C++. I used Leap’s API to do the 
 
 The Raspberry Pi runs a very simple python tcp server program and uses the gpiozero library for communicating with the Pi’s GPIO pins. Finally, the actual electric lock is a lock-style solenoid from adafruit, and uses a circuit very similar to the one used in this [adafruit tutorial](https://learn.adafruit.com/secret-knock-activated-drawer-lock/wiring). 
 
+## Some Images:
 
+![circuit](images/circuit.jpg)
+the circuit 
 
+![circuit](images/lock.jpg)
+the solenoid lock
 
+![circuit](images/side view.jpg)
+a view of the installation
