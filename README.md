@@ -10,7 +10,7 @@ Unlock a safe using a secret handshake.
 Most people don’t get to have a doorman to watch over their apartment and stuff. Dapman is a digital doorman that only opens what it’s guarding when you correctly “dap” him up. 
 
 ## Why did you do this?
-Dapman spawned from wanting to find a non-gaming application for my Leap Motion. Even though Leap Motion has experienced a rebirth due to Oculus VR, it seemed like the product come and gone without many attempts to do something weird with it. 
+Dapman spawned from wanting to find a non-gaming application for my Leap Motion. Even though Leap Motion has experienced a rebirth due to Oculus VR, it seemed like the product came and went without many attempts to do something weird with it. 
 
 ## How does it work?
 The project has two main parts:
