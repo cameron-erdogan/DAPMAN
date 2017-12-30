@@ -36,5 +36,5 @@ the circuit
 ![circuit](images/lock.jpg)
 the solenoid lock
 
-![circuit](images/side\ view.jpg)
+![circuit](images/sideview.jpg)
 a view of the installation
